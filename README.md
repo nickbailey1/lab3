@@ -14,7 +14,7 @@ To run the program, use the following command:
 where N is the number of threads to be used (default 4), and M is the number of entries each thread will add (default 25,000).
 
 The resultant output is structured as follows:
-
+```shell
 Generation: {time taken to generate the entries}
 Hash table base: {base (non-concurrent) implementation runtime}
   {num missing entries}
@@ -22,6 +22,7 @@ Hash table v1: {v1 implementation runtime}
   {num missing entries}
 Hash table v2: {v2 implementation runtime}
   {num missing entries}
+```
 
 ## First Implementation
 My implementation of v1 uses a single mutex for the entire table. When an attempt to add an entry is made, the thread requests the global lock, obtains it, adds the entry, and then yields the lock. The only other modifications I made was to implement error code checking for the pthread calls. While this implementation is slower, it is still correct: no race conditions will occur because threads are never adding entries at the same time.
