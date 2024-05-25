@@ -45,15 +45,15 @@ My implementation of v2 uses one mutex for each bucket in the hash table. This w
 ### Performance
 ```shell
 ./hash-table-tester -t 4 -s 50000
-Generation: 21,248 usec
-Hash table base: 112,795 usec
+Generation: 34,184 usec
+Hash table base: 75,542 usec
   - 0 missing
-Hash table v1: 215,104 usec
+Hash table v1: 216,454 usec
   - 0 missing
-Hash table v2: 27,691 usec
+Hash table v2: 23,639 usec
   - 0 missing
 ```
-As you can see in this output, v2 is much faster than both of the previous versions. As expected, with 4 threads, it takes 24.5% as long as the non-concurrent implementation, which is almost exactly 1/4. Also as expected, it is much faster than the v1 implementation (takes 12.9% as long) because threads can actually add entries to the table concurrently.
+As you can see in this output, v2 is much faster than both of the previous versions. As expected, with 4 threads, it takes 30% as long as the non-concurrent implementation, which is close to 1/4, with some added time due to mutex overhead. Also as expected, it is much faster than the v1 implementation (takes 10.9% as long) because threads can actually add entries to the table concurrently.
 
 ## Cleaning up
 ```shell
