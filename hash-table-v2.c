@@ -16,6 +16,7 @@ struct list_entry {
 SLIST_HEAD(list_head, list_entry);
 
 struct hash_table_entry {
+	// one mutex for each bucket
 	pthread_mutex_t m_lock;
 	struct list_head list_head;
 };
@@ -31,6 +32,7 @@ struct hash_table_v2 *hash_table_v2_create()
 	uint32_t error_code = 0;
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
 		struct hash_table_entry *entry = &hash_table->entries[i];
+		// in this version, there is one mutex per bucket
 		error_code = pthread_mutex_init(&entry->m_lock, NULL);
 		if (error_code) {
 			exit(error_code);
@@ -81,6 +83,7 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table,
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
 
+	// lock the specific lock for this bucket
 	uint32_t error_code = 0;
 	error_code = pthread_mutex_lock(&hash_table_entry->m_lock);
 	if (error_code) {

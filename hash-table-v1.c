@@ -20,6 +20,7 @@ struct hash_table_entry {
 };
 
 struct hash_table_v1 {
+	// one mutex for entire hash table
 	pthread_mutex_t m_lock;
 	struct hash_table_entry entries[HASH_TABLE_CAPACITY];
 };
@@ -27,7 +28,7 @@ struct hash_table_v1 {
 struct hash_table_v1 *hash_table_v1_create()
 {
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
-	// initialize lock and exit if fails
+	// in this version, only one mutex is ever created
 	uint32_t error_code = 0;
 	error_code = pthread_mutex_init(&hash_table->m_lock, NULL);
 	if (error_code) {
@@ -79,11 +80,11 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
                              const char *key,
                              uint32_t value)
 {
-	// adding an entry is critical, so lock
+	// lock entire hash table
 	uint32_t error_code = 0;
 	error_code = pthread_mutex_lock(&hash_table->m_lock);
 	if (error_code) {
-		exit(error_code)
+		exit(error_code);
 	}
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
 	struct list_head *list_head = &hash_table_entry->list_head;
@@ -103,6 +104,7 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	list_entry->key = key;
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
+	// unlock after entry has been added
 	error_code = pthread_mutex_unlock(&hash_table->m_lock);
 	if (error_code) {
 		exit(error_code);
@@ -131,6 +133,7 @@ void hash_table_v1_destroy(struct hash_table_v1 *hash_table)
 			free(list_entry);
 		}
 	}
+	// destroy lock
 	uint32_t error_code = 0;
 	error_code = pthread_mutex_destroy(&hash_table->m_lock);
 	if (error_code) {
